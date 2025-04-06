@@ -1,0 +1,20 @@
+# @name: getPosts
+GET http://localhost:3030/posts?page=1
+
+###
+
+# @name: createPost
+POST http://localhost:3030/posts
+Content-Type: application/json
+
+{
+    "latitude": 123.111,
+    "longitude": 123.111,
+    "color": "RED",
+    "address": "경기도 수원시",
+    "title": "땅땅치킨",
+    "description": "치킨이 맛있어요",
+    "date": "2025-04-01 01:57:40.396",
+    "score": 5,
+    "imageUris": []
+}
