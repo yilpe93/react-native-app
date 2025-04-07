@@ -1,7 +1,4 @@
-# @name: getHello
-GET http://localhost:3030/
-
-###
+### Posts
 
 # @name: getPosts
 GET http://localhost:3030/posts?page=1
@@ -56,3 +53,31 @@ Content-Type: application/json
 
 # @name: getAllMarkers
 GET http://localhost:3030/markers
+
+### 로그인
+
+# @name: signUp
+POST http://localhost:3030/auth/signup
+Content-Type: application/json
+
+{
+    "email": "asd@asd.com",
+    "password": "12341234"
+}
+
+###
+
+# @name: signIn
+POST http://localhost:3030/auth/signin
+Content-Type: application/json
+
+{
+    "email": "asd@asd.com",
+    "password": "12341234"
+}
+
+###
+
+# @name: refreshToken
+GET http://localhost:3030/auth/refresh
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZEBhc2QuY29tIiwiaWF0IjoxNzQ0MDM5NTAzLCJleHAiOjE3NDQwNDEzMDN9.AzHCRasZnq1rXdSC3Nqy467aHzFKcmUi4DrI0QqinvQ
