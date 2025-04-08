@@ -2,11 +2,13 @@
 
 # @name: getPosts
 GET http://localhost:3030/posts?page=1
+Authorization: Basic eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZEBhc2QuY29tIiwiaWF0IjoxNzQ0MTI0ODk3LCJleHAiOjE3NDQxMjY2OTd9.NzHjSqUPj4z90TyuzpVWKixOeXiJZdy1bSAiyLac_II
 
 ###
 
 # @name: getPost/:id
 GET http://localhost:3030/posts/1
+Authorization: Basic eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZEBhc2QuY29tIiwiaWF0IjoxNzQ0MTI0ODk3LCJleHAiOjE3NDQxMjY2OTd9.NzHjSqUPj4z90TyuzpVWKixOeXiJZdy1bSAiyLac_II
 
 ###
 
@@ -80,4 +82,4 @@ Content-Type: application/json
 
 # @name: refreshToken
 GET http://localhost:3030/auth/refresh
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZEBhc2QuY29tIiwiaWF0IjoxNzQ0MDM5NTAzLCJleHAiOjE3NDQwNDEzMDN9.AzHCRasZnq1rXdSC3Nqy467aHzFKcmUi4DrI0QqinvQ
+Authorization: Basic eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzZEBhc2QuY29tIiwiaWF0IjoxNzQ0MTI0ODk3LCJleHAiOjE3NDQxMjY2OTd9.NzHjSqUPj4z90TyuzpVWKixOeXiJZdy1bSAiyLac_II

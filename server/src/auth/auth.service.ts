@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { EditProfileDto } from './dto/edit.dto';
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -12,7 +15,7 @@ import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { resolve } from 'path';
+import { MarkerColor } from 'src/post/marker-color.enum';
 
 @Injectable()
 export class AuthService {
@@ -115,5 +118,96 @@ export class AuthService {
     await this.updateRefreshToken(user.id, refreshToken);
 
     return { accessToken, refreshToken };
+  }
+
+  getProfile(user: User) {
+    const { password, hashedRefreshToken, ...rest } = user;
+
+    return { ...rest };
+  }
+
+  async editProfile(editProfileDto: EditProfileDto, user: User) {
+    const profile = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userId', { userId: user.id })
+      .getOne();
+
+    const { nickname, imageUri } = editProfileDto;
+
+    if (!profile) {
+      throw new ForbiddenException('프로필을 찾을 수 없습니다.');
+    }
+
+    profile.nickname = nickname;
+    profile.imageUri = imageUri;
+
+    try {
+      await this.userRepository.save(profile);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      throw new InternalServerErrorException(
+        '프로필을 업데이트하는 도중 에러가 발생했습니다.',
+      );
+    }
+  }
+
+  async deleteRefreshToken(user: User) {
+    try {
+      await this.userRepository.update(user.id, {
+        hashedRefreshToken: null,
+      });
+    } catch (error) {
+      console.error('Error deleting refresh token:', error);
+      throw new InternalServerErrorException(
+        'refreshToken 삭제 도중 에러가 발생했습니다.',
+      );
+    }
+  }
+
+  async deleteAccount(user: User) {
+    try {
+      await this.userRepository
+        .createQueryBuilder('user')
+        .delete()
+        .from(User)
+        .where('user.id = :id', { id: user.id })
+        .execute();
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw new InternalServerErrorException(
+        '회원탈퇴 도중 에러가 발생했습니다.',
+      );
+    }
+  }
+
+  async updateCategory(categories: Record<string, string>, user: User) {
+    const { RED, YELLOW, BLUE, GREEN, PURPLE } = MarkerColor;
+
+    if (
+      !Object.keys(categories).every((color: MarkerColor) =>
+        [RED, YELLOW, BLUE, GREEN, PURPLE].includes(color),
+      )
+    ) {
+      throw new BadRequestException('유효하지 않은 카테고리입니다.');
+    }
+
+    user[RED] = categories[RED];
+    user[YELLOW] = categories[YELLOW];
+    user[BLUE] = categories[BLUE];
+    user[GREEN] = categories[GREEN];
+    user[PURPLE] = categories[PURPLE];
+
+    try {
+      await this.userRepository.save(user);
+    } catch (error) {
+      console.error('Error updating categories:', error);
+      throw new InternalServerErrorException(
+        '카테고리 업데이트 도중 에러가 발생했습니다.',
+      );
+    }
+
+    const { password, hashedRefreshToken, ...rest } = user;
+
+    return { ...rest };
   }
 }
