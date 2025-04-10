@@ -34,4 +34,7 @@ export class CreatePostDto {
 
   @IsArray()
   imageUris: { uri: string }[];
+
+  @IsArray()
+  favorites: number[];
 }

@@ -1,3 +1,4 @@
+import { Favorite } from 'src/favorite/favorite.entity';
 import { MarkerColor } from 'src/post/marker-color.enum';
 import { Post } from 'src/post/post.entity';
 import {
@@ -19,7 +20,7 @@ export class User extends BaseEntity {
   id: number;
 
   @Column()
-  loginType: 'email' | 'kakao' | 'google';
+  loginType: 'email' | 'kakao' | 'apple';
 
   @Column()
   email: string;
@@ -60,9 +61,12 @@ export class User extends BaseEntity {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   hashedRefreshToken: string | null;
 
   @OneToMany(() => Post, (post) => post.user, { eager: false })
   post: Post[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 }

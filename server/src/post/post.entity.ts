@@ -5,12 +5,15 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { MarkerColor } from './marker-color.enum';
 import { ColumnNumericTransformer } from 'src/@common/transformer/numeric.transformer';
 import { User } from 'src/auth/user.entity';
+import { Image } from 'src/image/image.entity';
+import { Favorite } from 'src/favorite/favorite.entity';
 
 @Entity()
 export class Post extends BaseEntity {
@@ -59,6 +62,12 @@ export class Post extends BaseEntity {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @ManyToOne(() => User, (user) => user.posts, { eager: false })
+  @ManyToOne(() => User, (user) => user.post, { eager: false })
   user: User;
+
+  @OneToMany(() => Image, (image) => image.post)
+  images: Image[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.post)
+  favorites: Favorite[];
 }

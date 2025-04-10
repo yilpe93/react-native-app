@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EditProfileDto } from './dto/edit.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -10,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthDto } from './dto/auth.dto';
+import { EditProfileDto } from './dto/edit.dto';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
@@ -81,6 +81,7 @@ export class AuthService {
        *  - unique constraint violation
        *  - unique constraint violation: "user_email_key" (email)
        */
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === '23505') {
         throw new ConflictException('이미 존재하는 이메일입니다.');
       }

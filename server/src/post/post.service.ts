@@ -8,12 +8,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './post.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/auth/user.entity';
+import { Image } from 'src/image/image.entity';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
+    @InjectRepository(Image)
+    private imageRepository: Repository<Image>,
   ) {}
 
   async getAllMarkers(user: User) {
@@ -39,23 +42,47 @@ export class PostService {
     }
   }
 
+  private getPostsWithOrderImages(posts: Post[]) {
+    return posts.map((post) => {
+      const { images, ...rest } = post;
+      const newImages = [...images].sort((a, b) => a.id - b.id);
+
+      return {
+        ...rest,
+        images: newImages,
+      };
+    });
+  }
+
   async getPosts(page: number, user: User) {
     const perPage = 10;
     const offset = (page - 1) * perPage;
 
-    return this.postRepository
+    const posts = await this.postRepository
       .createQueryBuilder('post')
+      .leftJoinAndSelect('post.images', 'image')
       .where('post.userId = :userId', { userId: user.id })
       .orderBy('post.date', 'DESC')
       .skip(offset)
       .take(perPage)
       .getMany();
+
+    return this.getPostsWithOrderImages(posts);
   }
 
   async getPostById(id: number, user: User) {
     try {
       const foundPost = await this.postRepository
         .createQueryBuilder('post')
+        .leftJoinAndSelect('post.images', 'image')
+        .leftJoinAndSelect(
+          'post.favorites',
+          'favorite',
+          'favorite.userId = :userId',
+          {
+            userId: user.id,
+          },
+        )
         .where('post.userId = :userId', { userId: user.id })
         .andWhere('post.id = :id', { id })
         .getOne();
@@ -64,7 +91,10 @@ export class PostService {
         throw new NotFoundException('존재하지 않는 피드입니다.');
       }
 
-      return foundPost;
+      const { favorites, ...rest } = foundPost;
+      const postWithFavorites = { ...rest, isFavorite: favorites.length > 0 };
+
+      return postWithFavorites;
     } catch (error) {
       console.error('Error fetching post:', error);
       throw new InternalServerErrorException(
@@ -83,7 +113,7 @@ export class PostService {
       description,
       date,
       score,
-      //   imageUris,
+      imageUris,
     } = createPostDto;
 
     const post = this.postRepository.create({
@@ -98,7 +128,11 @@ export class PostService {
       user,
     });
 
+    const images = imageUris.map((uri) => this.imageRepository.create(uri));
+    post.images = images;
+
     try {
+      await this.imageRepository.save(images);
       await this.postRepository.save(post);
     } catch (error) {
       console.error('Error saving post:', error);
@@ -140,23 +174,19 @@ export class PostService {
     user: User,
   ) {
     const post = await this.getPostById(id, user);
-    const {
-      color,
-      title,
-      description,
-      date,
-      score,
-      // imageUris,
-    } = updatePostDto;
+    const { color, title, description, date, score, imageUris } = updatePostDto;
 
     post.title = title;
     post.description = description;
     post.color = color;
     post.date = date;
     post.score = score;
-    // post
+
+    const images = imageUris.map((uri) => this.imageRepository.create(uri));
+    post.images = images;
 
     try {
+      await this.imageRepository.save(images);
       await this.postRepository.save(post);
     } catch (error) {
       console.error('Error updating post:', error);
